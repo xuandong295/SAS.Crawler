@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}Overview Dashboard{% endblock %}
+
+{% block links %}
+  <!-- Custom styles for this template-->
+  <link href="/static/css/sb-admin.css" rel="stylesheet">
+{% endblock %}
+{% block body %}
+<body id="page-top">
+
+  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+
+    <a class="navbar-brand mr-1" href="{% url 'overview' %}">Policy Crawler</a>
+
+
+
+  </nav>
+
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="sidebar navbar-nav">
+
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'overview' %}">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>Overview</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'policy' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Policies</span></a>
+      </li>
+              <li class="nav-item">
+        <a class="nav-link" href="{% url 'policy' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>APIs</span></a>
+      </li>
+              <li class="nav-item">
+        <a class="nav-link" href="{% url 'threat-detection' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Threat Detection</span></a>
+      </li>
+    </ul>
+
+    <div id="content-wrapper">
+
+      <div class="container-fluid">
+
+        <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            Policy Cover</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th style="width:300px">AWS</th>
+                    <th style="width:300px">Azure</th>
+                    <th style="width:300px">GCP</th>
+                    <th style="width:300px">Total</th>
+                  </tr>
+                  <tr>
+                      <th style="width:380px">SoraTrust</th>
+                      <td>{{numberOfEnablePoliciesAws.count}}</td>
+                      <td>{{numberOfEnablePoliciesAzure.count}}</td>
+                      <td>{{numberOfEnablePoliciesGcp.count}}</td>
+                      <td id="total-enable1"></td>
+                  </tr>
+                  <tr>
+                      <th>CloudConformity</th>
+                      <td>{{numberOfCloudConformityPoliciesAws.count}}</td>
+                      <td>{{numberOfCloudConformityPoliciesAzure.count}}</td>
+                      <td>{{numberOfCloudConformityPoliciesGcp.count}}</td>
+                    <td id="total-cloud-conformity"></td>
+                  </tr>
+                  <tr>
+                      <th>Covered(%)</th>
+                      <td id="covered-aws-policy-cover"></td>
+                      <td id="covered-azure-policy-cover"></td>
+                      <td id="covered-gcp-policy-cover"></td>
+                      <td id="covered-total-policy-cover"></td>
+                  </tr>
+                </thead>
+
+              </table>
+            </div>
+          </div>
+
+      <!-- /.container-fluid -->
+            <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            Policy Revision Status</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th style="width:300px">AWS</th>
+                    <th style="width:300px">Azure</th>
+                    <th style="width:300px">GCP</th>
+                    <th style="width:300px">Total</th>
+                  </tr>
+                  <tr>
+                      <th style="width:380px">Enabled Policies</th>
+                      <td>{{numberOfEnablePoliciesAws.count}}</td>
+                      <td>{{numberOfEnablePoliciesAzure.count}}</td>
+                      <td>{{numberOfEnablePoliciesGcp.count}}</td>
+                      <td id="total-enable2"></td>
+                  </tr>
+                  <tr>
+                      <th>Reviewed Policies</th>
+                      <td>{{numberOFReviewPoliciesAws.count}}</td>
+                      <td>{{numberOFReviewPoliciesAzure.count}}</td>
+                      <td>{{numberOFReviewPoliciesGcp.count}}</td>
+                      <td id="total-review"></td>
+                  </tr>
+                  <tr>
+                      <th>Covered(%)</th>
+                      <td id="covered-aws-policy-revision-status"></td>
+                      <td id="covered-azure-policy-revision-status"></td>
+                      <td id="covered-gcp-policy-revision-status"></td>
+                      <td id="covered-total-policy-revision-status"></td>
+                  </tr>
+                </thead>
+
+              </table>
+            </div>
+
+          </div>
+              <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            New Policies</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th style="width:300px">AWS</th>
+                    <th style="width:300px">Azure</th>
+                    <th style="width:300px">GCP</th>
+                    <th style="width:300px">Total</th>
+                  </tr>
+                  <tr>
+                      <th style="width:380px">CloudConformity</th>
+                      <td>{{NewPoliciesAws.count}}</td>
+                      <td>{{NewPoliciesAzure.count}}</td>
+                      <td>{{NewPoliciesGcp.count}}</td>
+                    <td id="total-new"></td>
+                  </tr>
+
+                </thead>
+
+              </table>
+            </div>
+          </div>
+
+                        <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            Thread Detection Rules</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th style="width:300px">AWS</th>
+                    <th style="width:300px">Azure</th>
+                    <th style="width:300px">GCP</th>
+                    <th style="width:300px">Total</th>
+                  </tr>
+                  <tr>
+                      <th style="width:380px">Enabled Rules</th>
+                      <td>{{numberOfEnableRulesAws.count}}</td>
+                      <td>{{numberOfEnableRulesAzure.count}}</td>
+                      <td>{{numberOfEnableRulesGcp.count}}</td>
+                      <td id="total-enable-rules"></td>
+                  </tr>
+                  <tr>
+                      <th>Total Rules</th>
+                      <td>{{totalOfPoliciesAws.count}}</td>
+                      <td>{{totalOfPoliciesAzure.count}}</td>
+                      <td>{{totalOfPoliciesGcp.count}}</td>
+                      <td id="total-rules"></td>
+                  </tr>
+                  <tr>
+                      <th>Covered(%)</th>
+                      <td id="covered-aws-threat-detection-revision"></td>
+                      <td id="covered-azure-threat-detection-revision"></td>
+                      <td id="covered-gcp-threat-detection-revision"></td>
+                      <td id="covered-total-threat-detection-revision"></td>
+                  </tr>
+                </thead>
+
+              </table>
+            </div>
+
+          </div>
+        </div>
+      <!-- /.container-fluid -->
+        </div>
+
+      </div>
+      <!-- /.container-fluid -->
+
+    </div>
+    <!-- /.content-wrapper -->
+
+  </div>
+      </div>
+    </div>
+  <!-- /#wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Bootstrap core JavaScript-->
+  <script src="/static/vendor/jquery/jquery.min.js"></script>
+  <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Page level plugin JavaScript-->
+  <script src="/static/vendor/chart.js/Chart.min.js"></script>
+  <script src="/static/vendor/datatables/jquery.dataTables.js"></script>
+  <script src="/static/vendor/datatables/dataTables.bootstrap4.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="/static/js/sb-admin.min.js"></script>
+
+  <!-- Demo scripts for this page-->
+  <script src="/static/js/demo/datatables-demo.js"></script>
+  <script src="/static/js/demo/chart-area-demo.js"></script>
+
+</body>
+<html>
+<head>
+
+    <script>
+    if({{numberOfCloudConformityPoliciesAws.count}}==0){
+         $("#covered-aws-policy-cover").html(0);
+    }
+    else{
+        $("#covered-aws-policy-cover").html({{numberOfEnablePoliciesAws.count}}/{{numberOfCloudConformityPoliciesAws.count}}*100+"%");
+    };
+
+    if({{numberOfCloudConformityPoliciesAzure.count}}==0){
+         $("#covered-azure-policy-cover").html(0);
+    }
+    else{
+         $("#covered-azure-policy-cover").html({{numberOfEnablePoliciesAzure.count}}/{{numberOfCloudConformityPoliciesAzure.count}}*100+"%");
+    };
+
+    if({{numberOfCloudConformityPoliciesGcp.count}}==0){
+         $("#covered-gcp-policy-cover").html(0);
+    }
+    else{
+        $("#covered-gcp-policy-cover").html({{numberOfEnablePoliciesGcp.count}}/{{numberOfCloudConformityPoliciesGcp.count}}*100+"%");
+    };
+
+    if({{numberOfEnablePoliciesAws.count}}==0){
+         $("#covered-aws-policy-revision-status").html(0);
+    }
+    else{
+            $("#covered-aws-policy-revision-status").html({{numberOFReviewPoliciesAws.count}}/{{numberOfEnablePoliciesAws.count}}*100+"%");
+    };
+    if({{numberOfEnablePoliciesAzure.count}}==0){
+         $("#covered-azure-policy-revision-status").html(0);
+    }
+    else{
+            $("#covered-azure-policy-revision-status").html({{numberOFReviewPoliciesAzure.count}}/{{numberOfEnablePoliciesAzure.count}}*100+"%");
+    };
+    if({{numberOfEnablePoliciesGcp.count}}==0){
+         $("#covered-gcp-policy-revision-status").html(0);
+    }
+    else{
+            $("#covered-gcp-policy-revision-status").html({{numberOFReviewPoliciesGcp.count}}/{{numberOfEnablePoliciesGcp.count}}*100+"%");
+    };
+    $("#total-enable1").html({{numberOfEnablePoliciesAws.count}}+{{numberOfEnablePoliciesAzure.count}}+{{numberOfEnablePoliciesGcp.count}});
+    $("#total-enable2").html({{numberOfEnablePoliciesAws.count}}+{{numberOfEnablePoliciesAzure.count}}+{{numberOfEnablePoliciesGcp.count}});
+    $("#total-cloud-conformity").html({{numberOfCloudConformityPoliciesAws.count}}+{{numberOfCloudConformityPoliciesAzure.count}}+{{numberOfCloudConformityPoliciesGcp.count}});
+    $("#total-review").html({{numberOFReviewPoliciesAzure.count}}+{{numberOFReviewPoliciesAws.count}}+{{numberOFReviewPoliciesGcp.count}});
+    $("#total-new").html({{NewPoliciesAzure.count}}+{{NewPoliciesAws.count}}+{{NewPoliciesGcp.count}});
+    $("#total-enable-rules").html({{numberOfEnableRulesGcp.count}}+{{numberOfEnableRulesAws.count}}+{{numberOfEnableRulesAzure.count}});
+    $("#total-rules").html({{totalOfPoliciesGcp.count}}+{{totalOfPoliciesAws.count}}+{{totalOfPoliciesAzure.count}});
+    if({{totalOfPoliciesGcp.count}}==0){
+         $("#covered-gcp-threat-detection-revision").html(0);
+    }
+    else{
+         $("#covered-gcp-threat-detection-revision").html({{numberOfEnableRulesGcp.count}}/{{totalOfPoliciesGcp.count}}*100+"%");
+    };
+    if({{totalOfPoliciesAzure.count}}==0){
+         $("#covered-azure-threat-detection-revision").html(0);
+    }
+    else{
+         $("#covered-azure-threat-detection-revision").html({{numberOfEnableRulesAzure.count}}/{{totalOfPoliciesAzure.count}}*100+"%");
+    };
+    if({{totalOfPoliciesAws.count}}==0){
+         $("#covered-aws-threat-detection-revision").html(0);
+    }
+    else{
+         $("#covered-aws-threat-detection-revision").html({{numberOfEnableRulesAws.count}}/{{totalOfPoliciesAws.count}}*100+"%");
+    };
+
+    if(({{numberOfCloudConformityPoliciesAws.count}}+{{numberOfCloudConformityPoliciesAzure.count}}+{{numberOfCloudConformityPoliciesGcp.count}})==0){
+         $("#covered-total-policy-cover").html(0);
+    }
+    else{
+         $("#covered-total-policy-cover").html((({{numberOfEnablePoliciesAws.count}}+{{numberOfEnablePoliciesAzure.count}}+{{numberOfEnablePoliciesGcp.count}})/({{numberOfCloudConformityPoliciesAws.count}}+{{numberOfCloudConformityPoliciesAzure.count}}+{{numberOfCloudConformityPoliciesGcp.count}}))*100+"%");
+    };
+    if(({{numberOfEnablePoliciesAws.count}}+{{numberOfEnablePoliciesAzure.count}}+{{numberOfEnablePoliciesGcp.count}})==0){
+         $("#covered-total-policy-revision-status").html(0);
+    }
+    else{
+         $("#covered-total-policy-revision-status").html((({{numberOFReviewPoliciesAzure.count}}+{{numberOFReviewPoliciesAws.count}}+{{numberOFReviewPoliciesGcp.count}})/({{numberOfEnablePoliciesAws.count}}+{{numberOfEnablePoliciesAzure.count}}+{{numberOfEnablePoliciesGcp.count}}))*100+"%");
+    };
+    if(({{totalOfPoliciesGcp.count}}+{{totalOfPoliciesAws.count}}+{{totalOfPoliciesAzure.count}})==0){
+         $("#covered-total-threat-detection-revision").html(0);
+    }
+    else{
+         $("#covered-total-threat-detection-revision").html((({{numberOfEnableRulesGcp.count}}+{{numberOfEnableRulesAws.count}}+{{numberOfEnableRulesAzure.count}})/({{totalOfPoliciesGcp.count}}+{{totalOfPoliciesAws.count}}+{{totalOfPoliciesAzure.count}}))*100+"%");
+    };
+    </script>
+</head>
+
+</html>
+{% endblock %}

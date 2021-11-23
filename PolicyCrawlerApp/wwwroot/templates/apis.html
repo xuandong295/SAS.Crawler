@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "base.html" %}
+
+{% block title %}API Dashboard{% endblock %}
+
+{% block links %}
+  <!-- Custom styles for this template-->
+<link href="/static/css/sb-admin.css" rel="stylesheet" xmlns="http://www.w3.org/1999/html">
+
+{% endblock %}
+{% block body %}
+<head>
+       <!-- MDBootstrap Datatables  -->
+    <link href="/static/css/addons/datatables.min.css" rel="stylesheet">
+
+
+     <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+    <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+</head>
+<body id="page-top">
+
+  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+
+    <a class="navbar-brand mr-1" href="{% url 'overview' %}">Policy Crawler</a>
+
+
+
+
+  </nav>
+
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="sidebar navbar-nav">
+
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'overview' %}">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>Overview</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'policy' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Policies</span></a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="{% url 'api' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>APIs</span></a>
+      </li>
+         <li class="nav-item">
+        <a class="nav-link" href="{% url 'threat-detection' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Threat Detection</span></a>
+      </li>
+    </ul>
+
+    <div id="content-wrapper">
+
+      <div class="container-fluid">
+
+
+
+
+
+        <!-- DataTables Example -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            APIs</div>
+          <div class="card-body">
+            <div class="table-responsive">
+                <div class="container">
+		<h6 id="select-number-of-rows">Items/Page</h6>
+				<div class="form-group"> 	<!--		Show Numbers Of Rows 		-->
+			 		<select class="form-control" name="state" id="maxRows">
+						 <option value="5000">Show ALL Rows</option>
+						 <option value="5">5</option>
+						 <option value="10">10</option>
+						 <option value="15">15</option>
+						 <option value="20">20</option>
+						 <option value="50">50</option>
+						 <option value="70">70</option>
+						 <option value="100">100</option>
+						</select>
+
+			  	</div>
+        <form action="{% url 'search-data-api' %}" method="GET">
+                  <input style="width: 300px" id="search-text" name="text" placeholder="Search..." type="text">
+                    <select id="search-by" name="searchby">
+                      <option>Name</option>
+                      <option>Cloud Type</option>
+                      <option>Service</option>
+                      <option>Conformity Status</option>
+                      <option>Status</option>
+                      <option>PIC</option>
+                      <option>Comment</option>
+                    </select>
+                  <input id="submit-search-api" type="submit" value="Search">
+                </form>
+                    <p></p>
+          <button id="create-new-api" data-toggle="modal" data-target="#exampleModal">Create Api</button>
+                     <form action="{% url 'export_apis_xls' %}" method="POST">
+
+                         <select id="export-by" name="export-by">
+                            <option>All</option>
+                            <option>Enabled</option>
+                            <option>AWS</option>
+                             <option>Azure</option>
+                             <option>GCP</option>
+                         </select>
+                  <button id="export-all-apis" type="submit">Export</button>
+                    </form>
+
+    <table class="table table-striped table-class" id= "table-id">
+
+		<thread>
+                  <tr>
+                        <th class="th-sm">Name</th>
+                        <th class="th-sm">Cloud Type</th>
+                        <th class="th-sm">Service</th>
+                        <th class="th-sm">Conformity Status</th>
+                        <th class="th-sm">Done</th>
+                        <th class="th-sm">PIC</th>
+                        <th class="th-sm">Comment</th>
+                        <th class="th-sm">Update</th>
+                        <th class="th-sm">Delete</th>
+                  </tr>
+		</thread>
+
+                  <tbody>
+
+                        {% for api in apis %}
+                                <tr id="tr-id-{{api.id}}">
+                                      <input class="txt-form" name="id" type="hidden" value="{{ api.id }}">
+                                      <td><input style="width: 280px" id="input-name-{{api.id}}" class="txt-form" name="name" type="text" value="{{ api.name }}"></td>
+                                      <td><input id="input-cloudtype-{{api.id}}" hidden class="txt-form" name="cloudtype" type="text">
+                                      <select id="select-cloudtype-{{api.id}}">
+                                          <option value="aws">aws</option>
+                                          <option value="azure">azure</option>
+                                          <option value="gcp">gcp</option>
+                                      </select>
+                                      </td>
+                                      <td><input id="input-service-{{api.id}}" class="txt-form" name="service" type="text" value="{{ api.service }}"></td>
+                                        <td>
+                                          <input id="input-conformitystatus-{{api.id}}" hidden class="txt-form" name="conformitystatus" type="text" value="{{ api.conformitystatus }}">
+                                          <select id="select-conformitystatus-{{api.id}}">
+                                              <option value="current">current</option>
+                                              <option value="new">new</option>
+                                              <option value="deprecated">deprecated</option>
+                                          </select>
+                                      </td>
+                                    <td>
+                                          <input id="input-status-{{api.id}}" class="txt-form" name="status" type="text" value="{{ api.status }}" hidden>
+                                          <input id="select-status-{{api.id}}" type="checkbox">
+                                      </td>
+                                        <td><input id="input-pic-{{api.id}}" class="txt-form" name="pic" type="text" value="{{ api.pic }}"></td>
+                                      <td>
+                                          <textarea style="width: 300px; height: 100px" id="input-comment-{{api.id}}" class="txt-form" name="comment" type="text">{{ api.comment }}</textarea>
+                                      </td>
+                                      <td><button id="update-{{api.id}}">Update</button></td>
+                                      <td><button id="delete-{{api.id}}">Delete</button></td>
+                                  <!--    <input id="update1-{{api.id}}" name="submit" type="submit" value="Update" style="display:none" />
+                                      <input id="delete1-{{api.id}}" name="submit" type="submit" value="Delete" style="display:none"/>-->
+                                </tr>
+                          {% endfor %}
+
+
+                 </tbody>
+              </table>
+                <!--		Start Pagination -->
+			<div class='pagination-container' >
+				<nav>
+				  <ul class="pagination">
+
+            <li class="li-border" data-page="prev" >
+								     <span> < <span class="sr-only">(current)</span></span>
+								    </li>
+				   <!--	Here the JS Function Will Add the Rows -->
+        <li class="li-border" data-page="next" id="prev">
+								       <span> > <span class="sr-only">(current)</span></span>
+								    </li>
+				  </ul>
+				</nav>
+			</div>
+
+</div> <!-- 		End of Container -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <!-- /.container-fluid -->
+
+
+    </div>
+    <!-- /.content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create New API</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+             <form action="{% url 'api' %}" method="POST">
+                            <table id="create-data-table" cellspacing="0">
+                                <tr><td>Name:</td> <td><input class="Section" name="name" type="text" placeholder="name"></td></tr>
+                                <tr>
+                                    <td>
+                                        Cloudtype:
+                                    </td>
+                                    <td>
+                                        <select class="Section" name="cloudtype">
+                                            <option value="aws">aws</option>
+                                            <option value="azure">azure</option>
+                                            <option value="gcp">gcp</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr><td>Service:</td> <td><input class="Section" name="service" type="text" placeholder="service"></td></tr>
+                                <tr>
+                                    <td>
+                                        Conformitystatus:
+                                    </td>
+                                    <td>
+                                          <select class="Section" name="conformitystatus">
+                                              <option value="current">current</option>
+                                              <option selected value="new">new</option>
+                                              <option value="deprecated">deprecated</option>
+                                          </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Done:</td>
+                                    <td>
+                                        <input id="input-status-create-api" class="Section" name="status" type="text" hidden>
+                                        <input id="select-status-create-api" type="checkbox">
+                                    </td>
+                                </tr>
+                                <tr><td>PIC:</td> <td><input class="Section" name="pic" type="text" placeholder="pic"></td></tr>
+                                <tr>
+                                    <td>Comment:</td>
+                                    <td>
+                                        <textarea style="width:300px; height:200px" class="Section" name="comment" placeholder="comment"> </textarea>
+                                    </td>
+                                </tr>
+
+                            </table>
+                <button type="button" data-dismiss="modal">Close</button>
+                <input id="create-api-button" class="btn btn-secondary" type="submit" value="Create">
+            </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+   <!-- Bootstrap core JavaScript-->
+  <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Page level plugin JavaScript-->
+  <script src="/static/vendor/chart.js/Chart.min.js"></script>
+  <script src="/static/vendor/datatables/jquery.dataTables.js"></script>
+  <script src="/static/vendor/datatables/dataTables.bootstrap4.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="/static/js/sb-admin.min.js"></script>
+
+  <!-- Demo scripts for this page-->
+  <script src="/static/js/demo/datatables-demo.js"></script>
+  <script src="/static/js/demo/chart-area-demo.js"></script>
+
+    <!-- MDBootstrap Datatables  -->
+    <script type="text/javascript" src="../static/js/addons/datatables.min.js"></script>
+  <!-- jQuery -->
+  <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="/static/js/popper.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="/static/js/mdb.min.js"></script>
+  <!-- Your custom scripts (optional) -->
+  <script type="text/javascript"></script>
+    <!-- MDBootstrap Datatables  -->
+    <script type="text/javascript" src="/static/js/addons/datatables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+
+</body>
+<html>
+<head>
+    {% block javascript %}
+    <script>
+       toastr.options = {
+           "preventDuplicates": true
+       }
+
+    $(document).ready(function(){
+    $("#create-api-button").click(function() {
+        if($('#select-status-create-api').is(':checked')){
+            $('#input-status-create-api').val("1");
+        }
+        else{
+            $('#input-status-create-api').val("0");
+        }
+    });
+
+
+        {% for api in apis %}
+
+        if("{{api.status}}"=='1'){
+            $("#select-status-{{api.id}}").attr("checked", "checked");
+        }
+     $("#select-cloudtype-{{api.id}}").val("{{api.cloudtype}}");
+     $("#select-conformitystatus-{{api.id}}").val("{{api.conformitystatus}}");
+        {% endfor %}
+    {% for api in apis %}
+   $("#update-{{api.id}}").click(function(e) {
+        var selectCloudtype = $("#select-cloudtype-{{api.id}}").val()
+        var selectConformitystatus = $("#select-conformitystatus-{{api.id}}").val()
+        e.preventDefault();
+        if ($("#select-status-{{api.id}}").is(':checked')) {
+            $("#input-status-{{api.id}}").val("1");
+        }else
+        {
+            $("#input-status-{{api.id}}").val("0");
+        }
+        $("#input-cloudtype-{{api.id}}").val(selectCloudtype);
+        $("#input-conformitystatus-{{api.id}}").val(selectConformitystatus);
+        $.confirm({
+            title: 'Confirm!',
+            content: 'Update this data?',
+            buttons: {
+                confirm: {
+                        btnClass: 'btn-blue',
+                        action: function () {
+                            $.ajax({
+
+                        type: "PUT",
+                        url: "{% url 'api' %}",
+                        data: {
+                        id: "{{api.id}}",
+                        name: $("#input-name-{{api.id}}").val(),
+                        cloudtype: $("#input-cloudtype-{{api.id}}").val(),
+                        service: $("#input-service-{{api.id}}").val(),
+                        conformitystatus: $("#input-conformitystatus-{{api.id}}").val(),
+                        status: $("#input-status-{{api.id}}").val(),
+                        pic: $("#input-pic-{{api.id}}").val(),
+                        comment: $("#input-comment-{{api.id}}").val(),
+                        submit: "Update",
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        },
+                             success: (result) => {
+                              toastr.success('Command completed successfully!');
+
+                         },
+                          error: (error) => {
+                              toastr.error('Could not complete command. Please try again!');
+                         }
+                    })
+                    $.alert('Confirmed!')
+                }
+                },
+                cancel: function () {
+                    $.alert('Canceled!');
+                }
+
+            }
+        });
+
+
+    });
+    {% endfor %}
+     {% for api in apis %}
+   $("#delete-{{api.id}}").click(function(e) {
+        e.preventDefault();
+        $.confirm({
+            title: 'Confirm!',
+            content: 'Simple confirm!',
+            buttons: {
+                confirm:{
+
+                btnClass: 'btn-blue',
+                action: function () {
+                             $.ajax({
+                            type: "DELETE",
+                            url: "{% url 'api' %}",
+                            data: {
+                            id: "{{api.id}}",
+                            },
+                            success: function() {
+                                  toastr.success('Command completed successfully!');
+                                   $("#tr-id-{{api.id}}").remove();
+                                 },
+                              error: (error) => {
+                                  toastr.error('Could not complete command. Please try again!');
+
+                                 }
+                                })
+                                 $.alert('Confirmed!');
+                         },
+                },
+                cancel: function () {
+                    $.alert('Canceled!');
+                },
+
+            }
+        });
+
+        });
+    {% endfor %}
+
+
+              getPagination('#table-id');
+					//getPagination('.table-class');
+					//getPagination('table');
+
+		  /*					PAGINATION
+		  - on change max rows select options fade out all rows gt option value mx = 5
+		  - append pagination list as per numbers of rows / max rows option (20row/5= 4pages )
+		  - each pagination li on click -> fade out all tr gt max rows * li num and (5*pagenum 2 = 10 rows)
+		  - fade out all tr lt max rows * li num - max rows ((5*pagenum 2 = 10) - 5)
+		  - fade in all tr between (maxRows*PageNum) and (maxRows*pageNum)- MaxRows
+		  */
+
+
+function getPagination(table) {
+  var lastPage = 1;
+
+  $('#maxRows')
+    .on('change', function(evt) {
+      //$('.paginationprev').html('');						// reset pagination
+
+     lastPage = 1;
+      $('.pagination')
+        .find('li')
+        .slice(1, -1)
+        .remove();
+      var trnum = 0; // reset tr counter
+      var maxRows = parseInt($(this).val()); // get Max Rows from select option
+
+      if (maxRows == 5000) {
+        $('.pagination').hide();
+      } else {
+        $('.pagination').show();
+      }
+
+      var totalRows = $(table + ' tbody tr').length; // numbers of rows
+      $(table + ' tr:gt(0)').each(function() {
+        // each TR in  table and not the header
+        trnum++; // Start Counter
+        if (trnum > maxRows) {
+          // if tr number gt maxRows
+
+          $(this).hide(); // fade it out
+        }
+        if (trnum <= maxRows) {
+          $(this).show();
+        } // else fade in Important in case if it ..
+      }); //  was fade out to fade it in
+      if (totalRows > maxRows) {
+        // if tr total rows gt max rows option
+        var pagenum = Math.ceil(totalRows / maxRows); // ceil total(rows/maxrows) to get ..
+        //	numbers of pages
+        for (var i = 1; i <= pagenum; ) {
+          // for each page append pagination li
+          $('.pagination #prev')
+            .before(
+              '<li class="li-border" data-page="' +
+                i +
+                '">\
+								  <span>' +
+                i++ +
+                '<span class="sr-only">(current)</span></span>\
+								</li>'
+            )
+            .show();
+        } // end for i
+      } // end if row count > max rows
+      $('.pagination [data-page="1"]').addClass('active'); // add active class to the first li
+      $('.pagination li').on('click', function(evt) {
+        // on click each page
+        evt.stopImmediatePropagation();
+        evt.preventDefault();
+        var pageNum = $(this).attr('data-page'); // get it's number
+
+        var maxRows = parseInt($('#maxRows').val()); // get Max Rows from select option
+
+        if (pageNum == 'prev') {
+          if (lastPage == 1) {
+            return;
+          }
+          pageNum = --lastPage;
+        }
+        if (pageNum == 'next') {
+          if (lastPage == $('.pagination li').length - 2) {
+            return;
+          }
+          pageNum = ++lastPage;
+        }
+
+        lastPage = pageNum;
+        var trIndex = 0; // reset tr counter
+        $('.pagination li').removeClass('active'); // remove active class from all li
+        $('.pagination [data-page="' + lastPage + '"]').addClass('active'); // add active class to the clicked
+        // $(this).addClass('active');					// add active class to the clicked
+	  	limitPagging();
+        $(table + ' tr:gt(0)').each(function() {
+          // each tr in table not the header
+          trIndex++; // tr index counter
+          // if tr index gt maxRows*pageNum or lt maxRows*pageNum-maxRows fade if out
+          if (
+            trIndex > maxRows * pageNum ||
+            trIndex <= maxRows * pageNum - maxRows
+          ) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          } //else fade in
+        }); // end of for each tr in table
+      }); // end of on click pagination list
+	  limitPagging();
+    })
+    .val(10)
+    .change();
+
+  // end of on select change
+
+  // END OF PAGINATION
+}
+
+function limitPagging(){
+	// alert($('.pagination li').length)
+
+	if($('.pagination li').length > 7 ){
+			if( $('.pagination li.active').attr('data-page') <= 3 ){
+			$('.pagination li:gt(5)').hide();
+			$('.pagination li:lt(5)').show();
+			$('.pagination [data-page="next"]').show();
+		}if ($('.pagination li.active').attr('data-page') > 3){
+			$('.pagination li:gt(0)').hide();
+			$('.pagination [data-page="next"]').show();
+			for( let i = ( parseInt($('.pagination li.active').attr('data-page'))  -2 )  ; i <= ( parseInt($('.pagination li.active').attr('data-page'))  + 2 ) ; i++ ){
+				$('.pagination [data-page="'+i+'"]').show();
+
+			}
+
+		}
+	}
+}
+
+});
+
+    </script>
+    {% endblock javascript %}
+</head>
+
+</html>
+{% endblock %}
